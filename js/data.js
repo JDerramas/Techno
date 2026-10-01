@@ -4,13 +4,15 @@
  */
 
 const CAMPUS_DEPARTMENTS = [
-  { code: 'CICS', name: 'College of Information & Computing Sciences (BSCS, BSIT, BSIS)' },
-  { code: 'CBAA', name: 'College of Business Administration & Accountancy (BSA, BSBA)' },
-  { code: 'COED', name: 'College of Education (BSED, BEED)' },
-  { code: 'COE', name: 'College of Engineering (BSCE, BSEE, BSME)' },
-  { code: 'CAS', name: 'College of Arts and Sciences (BA Comm, BS Psych)' },
-  { code: 'CCJ', name: 'College of Criminology & Justice' },
-  { code: 'CHTM', name: 'College of Hospitality & Tourism Management' }
+  { code: 'BSIS', name: 'Bachelor of Science in Information Systems (BSIS)' },
+  { code: 'AIS', name: 'Associate in Information Systems (AIS)' },
+  { code: 'BSBA-MM', name: 'BSBA Major in Marketing Management' },
+  { code: 'BSBA-HRDM', name: 'BSBA Major in Human Resource Development & Management' },
+  { code: 'BSBA-FM', name: 'BSBA Major in Financial Management' },
+  { code: 'BEEd', name: 'Bachelor of Elementary Education (BEEd)' },
+  { code: 'BSEd-Eng', name: 'BSEd Major in English' },
+  { code: 'BSEd-Fil', name: 'BSEd Major in Filipino' },
+  { code: 'BSEd-Math', name: 'BSEd Major in Mathematics' }
 ];
 
 const CAMPUS_TIME_SLOTS = [
@@ -149,7 +151,7 @@ const INITIAL_RESERVATIONS = [
     createdAt: '2026-10-01T09:30:00',
     studentName: 'Julian Angelo Santos',
     studentId: '2024-10822-KA',
-    department: 'College of Information & Computing Sciences',
+    department: 'Bachelor of Science in Information Systems (BSIS)',
     yearLevel: '3rd Year',
     contact: '09178239012',
     pickupDate: '2026-10-05',
@@ -168,7 +170,7 @@ const INITIAL_RESERVATIONS = [
     createdAt: '2026-10-01T14:15:00',
     studentName: 'Samantha Nicole Reyes',
     studentId: '2023-08451-KA',
-    department: 'College of Business Administration & Accountancy',
+    department: 'BSBA Major in Marketing Management',
     yearLevel: '2nd Year',
     contact: '09285512940',
     pickupDate: '2026-10-06',
@@ -186,7 +188,7 @@ const INITIAL_RESERVATIONS = [
     createdAt: '2026-09-30T11:20:00',
     studentName: 'Marco Antonio David',
     studentId: '2025-01103-KA',
-    department: 'College of Engineering',
+    department: 'Bachelor of Secondary Education Major in English (BSEd)',
     yearLevel: '1st Year',
     contact: '09951234882',
     pickupDate: '2026-10-02',

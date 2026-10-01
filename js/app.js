@@ -7,7 +7,7 @@ class KahitAnoApp {
   constructor() {
     this.STORAGE_KEYS = {
       CATALOG: 'kahit_ano_catalog_v1',
-      RESERVATIONS: 'kahit_ano_reservations_v1',
+      RESERVATIONS: 'kahit_ano_reservations_v2',
       CART: 'kahit_ano_cart_v1'
     };
 
@@ -771,11 +771,11 @@ class KahitAnoApp {
     const modal = document.getElementById('checkout-modal');
     if (!modal) return;
 
-    // Populate Department dropdown
+    // Populate Course / Program dropdown
     const deptSelect = document.getElementById('checkout-dept');
     if (deptSelect) {
       deptSelect.innerHTML = `
-        <option value="" disabled selected>-- Select your Academic Department / College --</option>
+        <option value="" disabled selected>-- Select Course / Program (e.g. BSIS, BSBA, BSEd) --</option>
         ${CAMPUS_DEPARTMENTS.map(d => `<option value="${d.name}">${d.code} - ${d.name}</option>`).join('')}
       `;
     }
