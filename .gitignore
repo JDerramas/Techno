@@ -1,0 +1,7 @@
+# AI Agents & IDE customizations
+.agents/
+.gemini/
+
+# OS files
+Thumbs.db
+.DS_Store

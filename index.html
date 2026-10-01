@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kahit Ano | Visual Catalog & Smart Reservation System</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  
+  <!-- Canvas Confetti CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="css/styles.css">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              200: '#bfdbfe',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8a',
+              950: '#0f172a'
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased">
+
+  <!-- TOP APP BAR / NAVIGATION -->
+  <header class="sticky top-0 z-40 bg-slate-900 border-b border-slate-800 text-white shadow-lg">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        
+        <!-- Kahit Ano Logo & Identity -->
+        <div class="flex items-center gap-3 cursor-pointer" onclick="app.switchPortalView('student')">
+          <img src="images/kahit-ano-logo.png" alt="Kahit Ano Logo" class="w-11 h-11 rounded-2xl object-cover border border-amber-400/60 shadow-md bg-white">
+          <div>
+            <h1 class="text-sm md:text-base font-black tracking-tight leading-none text-white uppercase font-display">
+              Kahit Ano
+            </h1>
+            <p class="text-[10px] md:text-xs text-amber-400 font-semibold tracking-wider">
+              We Cover... Everything (Kahit Ano!)
+            </p>
+          </div>
+        </div>
+
+        <!-- View Switcher & Action Tools -->
+        <div class="flex items-center gap-2 sm:gap-4">
+          <!-- View Switcher Segment -->
+          <div class="bg-slate-950 p-1 rounded-2xl border border-slate-800 flex items-center">
+            <button 
+              id="portal-switch-student"
+              onclick="app.switchPortalView('student')"
+              class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-white text-slate-900 shadow-sm transition">
+              Student Catalog
+            </button>
+            <button 
+              id="portal-switch-admin"
+              onclick="app.switchPortalView('admin')"
+              class="px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-300 hover:text-white transition flex items-center gap-1.5">
+              <span>Admin Logistics</span>
+              <span class="w-2 h-2 rounded-full bg-amber-400 inline-block animate-pulse"></span>
+            </button>
+          </div>
+
+          <!-- Size Guide Modal Trigger -->
+          <button 
+            onclick="app.openSizeGuideModal()" 
+            class="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-200 hover:bg-slate-800 border border-slate-700 transition">
+            <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+            Size Guide
+          </button>
+
+          <!-- Cart Drawer Button -->
+          <button 
+            id="nav-cart-btn" 
+            onclick="app.openCartDrawer()" 
+            class="relative px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 active:scale-95 text-slate-950 rounded-xl text-xs font-black shadow-md transition flex items-center gap-2">
+            <svg class="w-4 h-4 text-slate-950" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+            <span class="hidden md:inline">Reservation Cart</span>
+            <!-- Floating Badge -->
+            <span id="nav-cart-badge" class="absolute -top-1.5 -right-1.5 bg-amber-600 text-white text-xs font-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-slate-900 opacity-0 scale-0 transition-all">
+              0
+            </span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- ======================================================== -->
+  <!-- STUDENT CATALOG VIEW -->
+  <!-- ======================================================== -->
+  <main id="student-view-container" class="flex-1 pb-16">
+    
+    <!-- Kahit Ano Visual Showcase Header -->
+    <section class="bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 text-white py-8 border-b border-slate-800 relative overflow-hidden">
+      <!-- Ambient Lighting -->
+      <div class="absolute -right-10 -bottom-20 w-96 h-96 rounded-full bg-amber-500/10 blur-3xl pointer-events-none"></div>
+      <div class="absolute left-1/4 -top-10 w-72 h-72 rounded-full bg-blue-500/10 blur-3xl pointer-events-none"></div>
+
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 flex flex-col sm:flex-row items-center justify-between gap-6">
+        <div class="flex items-center gap-4 text-center sm:text-left">
+          <img src="images/kahit-ano-logo.png" alt="Kahit Ano Logo" class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover border-2 border-amber-400/80 shadow-xl bg-white flex-shrink-0">
+          <div>
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/10 border border-amber-400/30 text-amber-300 text-xs font-bold mb-2">
+              <span class="w-2 h-2 rounded-full bg-amber-400 inline-block animate-pulse"></span>
+              <span>We Cover... Everything (Kahit Ano!)</span>
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-black tracking-tight font-display text-white">
+              Kahit Ano <span class="bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-200 bg-clip-text text-transparent">Visual Catalog</span>
+            </h2>
+            <p class="text-slate-400 text-xs sm:text-sm mt-1">
+              Uniforms, Apparel & Logistics Visual Showcase
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <button 
+            onclick="app.openSizeGuideModal()" 
+            class="px-4 py-2.5 bg-slate-800/90 hover:bg-slate-800 text-slate-200 border border-slate-700 rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-sm">
+            <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+            <span>Size Guide</span>
+          </button>
+          <button 
+            onclick="app.openCartDrawer()" 
+            class="px-4 py-2.5 bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 active:scale-95 text-slate-950 rounded-xl text-xs font-black shadow-md transition flex items-center gap-2">
+            <svg class="w-4 h-4 text-slate-950" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+            <span>Reservation Cart</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Filter & Search Toolbar -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 relative z-20">
+      <div class="bg-white rounded-3xl border border-slate-200 shadow-lg p-4 flex flex-col md:flex-row gap-4 items-center justify-between">
+        
+        <!-- Category Filters -->
+        <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
+          <button 
+            data-category-filter="all" 
+            class="px-4 py-2 rounded-xl text-xs font-bold bg-blue-700 text-white shadow-sm transition">
+            All Apparel
+          </button>
+          <button 
+            data-category-filter="general" 
+            class="px-4 py-2 rounded-xl text-xs font-semibold bg-white text-slate-600 border border-slate-200 hover:border-blue-700 hover:text-blue-700 transition">
+            General Uniform
+          </button>
+          <button 
+            data-category-filter="pe" 
+            class="px-4 py-2 rounded-xl text-xs font-semibold bg-white text-slate-600 border border-slate-200 hover:border-blue-700 hover:text-blue-700 transition">
+            PE Athletics
+          </button>
+          <button 
+            data-category-filter="department" 
+            class="px-4 py-2 rounded-xl text-xs font-semibold bg-white text-slate-600 border border-slate-200 hover:border-blue-700 hover:text-blue-700 transition">
+            Department Attire
+          </button>
+          <button 
+            data-category-filter="accessory" 
+            class="px-4 py-2 rounded-xl text-xs font-semibold bg-white text-slate-600 border border-slate-200 hover:border-blue-700 hover:text-blue-700 transition">
+            Accessories
+          </button>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="relative w-full md:w-80">
+          <input 
+            type="text" 
+            id="catalog-search-input"
+            placeholder="Search polo, slacks, PE, varsity jacket..." 
+            class="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition">
+          <svg class="w-4 h-4 text-slate-400 absolute left-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+        </div>
+
+      </div>
+
+      <!-- Results Subheader -->
+      <div class="flex items-center justify-between mt-6 mb-2 px-1">
+        <span id="catalog-results-count" class="text-xs font-bold text-slate-500 uppercase tracking-wider">
+          Loading apparel catalog...
+        </span>
+        <button onclick="app.openSizeGuideModal()" class="text-xs text-blue-700 font-bold hover:underline flex items-center gap-1.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+          Need measurement help? Open University Size Guide
+        </button>
+      </div>
+    </section>
+
+    <!-- Catalog Product Grid -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+      <div id="catalog-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <!-- Rendered dynamically by app.renderCatalog() -->
+      </div>
+    </section>
+
+
+
+  </main>
+
+  <!-- ======================================================== -->
+  <!-- ADMIN / SUPPLY LOGISTICS PORTAL -->
+  <!-- ======================================================== -->
+  <main id="admin-view-container" class="flex-1 pb-16 hidden">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+      
+      <!-- Admin Header -->
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-200">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="px-3 py-1 rounded-full bg-blue-100 text-blue-900 border border-blue-300 text-xs font-black uppercase">
+              Property & Logistics Administration
+            </span>
+            <span class="text-xs text-slate-500 font-mono">Real-time Session Active</span>
+          </div>
+          <h2 class="text-2xl font-black text-slate-900 tracking-tight mt-1 font-display">
+            Uniform Reservation & Inventory Management Dashboard
+          </h2>
+          <p class="text-xs text-slate-500">
+            Real-time tracking of student apparel reservations, stock level modifications, and issuance verification.
+          </p>
+        </div>
+
+        <!-- Global Admin Actions -->
+        <div class="flex flex-wrap items-center gap-2">
+          <button 
+            onclick="app.exportReservationsCSV()" 
+            class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+            <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+            Export Masterlist (CSV)
+          </button>
+          <button 
+            onclick="document.getElementById('add-product-modal').classList.remove('hidden')" 
+            class="px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+            Add Apparel Item
+          </button>
+          <button 
+            onclick="app.resetDemoData()" 
+            class="px-3 py-2 bg-slate-100 hover:bg-rose-50 hover:text-rose-700 text-slate-600 rounded-xl text-xs font-semibold transition border border-slate-200" 
+            title="Reset to default University demo state">
+            ↺ Reset Demo
+          </button>
+        </div>
+      </div>
+
+      <!-- KPI Metrics Cards -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+        <div class="p-5 bg-white rounded-3xl border border-slate-200 shadow-sm">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Reservations</span>
+            <div class="w-8 h-8 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center font-bold">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+            </div>
+          </div>
+          <div class="text-2xl font-black text-slate-900 font-display" id="admin-kpi-total-res">0</div>
+          <span class="text-[11px] text-blue-700 font-semibold">Active in system database</span>
+        </div>
+
+        <div class="p-5 bg-white rounded-3xl border border-slate-200 shadow-sm">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Projected Revenue</span>
+            <div class="w-8 h-8 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center font-bold">
+              ₱
+            </div>
+          </div>
+          <div class="text-2xl font-black text-slate-900 font-display" id="admin-kpi-revenue">₱0</div>
+          <span class="text-[11px] text-amber-700 font-semibold">Payable at campus counter</span>
+        </div>
+
+        <div class="p-5 bg-white rounded-3xl border border-slate-200 shadow-sm">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Pending Pickups</span>
+            <div class="w-8 h-8 rounded-xl bg-sky-50 text-sky-700 flex items-center justify-center font-bold">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            </div>
+          </div>
+          <div class="text-2xl font-black text-slate-900 font-display" id="admin-kpi-pending">0</div>
+          <span class="text-[11px] text-sky-700 font-semibold">Awaiting student claim</span>
+        </div>
+
+        <div class="p-5 bg-white rounded-3xl border border-slate-200 shadow-sm">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Low Stock Alerts</span>
+            <div class="w-8 h-8 rounded-xl bg-rose-50 text-rose-700 flex items-center justify-center font-bold">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            </div>
+          </div>
+          <div class="text-2xl font-black text-rose-700 font-display" id="admin-kpi-low-stock">0</div>
+          <span class="text-[11px] text-rose-600 font-semibold">Requires re-order batch</span>
+        </div>
+      </div>
+
+      <!-- Admin Tabs Navigation -->
+      <div class="mt-8 border-b border-slate-200 flex items-center gap-6">
+        <button 
+          id="admin-tab-reservations-btn"
+          onclick="app.setAdminTab('reservations')"
+          class="pb-3 border-b-2 border-blue-700 text-slate-900 font-bold text-sm flex items-center gap-2">
+          <span>Student Reservations Queue</span>
+          <span class="px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 text-[10px] font-bold">Live</span>
+        </button>
+        <button 
+          id="admin-tab-inventory-btn"
+          onclick="app.setAdminTab('inventory')"
+          class="pb-3 border-b-2 border-transparent text-slate-500 font-medium text-sm hover:text-slate-800 flex items-center gap-2">
+          <span>Catalog & Stock Management</span>
+        </button>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- ADMIN RESERVATIONS SECTION -->
+      <!-- ========================================== -->
+      <div id="admin-reservations-section" class="mt-6">
+        <!-- Filter and Search Row -->
+        <div class="bg-white p-4 rounded-3xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4 mb-4">
+          <div class="relative w-full md:w-80">
+            <input 
+              type="text" 
+              id="admin-search-input"
+              placeholder="Search Ref Code, Student Name, or ID..." 
+              class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600">
+            <svg class="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+          </div>
+
+          <div class="flex items-center gap-2 w-full md:w-auto">
+            <label class="text-xs font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap">Filter Status:</label>
+            <select 
+              id="admin-status-select" 
+              class="w-full md:w-auto px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-600/20">
+              <option value="all">All Statuses</option>
+              <option value="Pending">Pending</option>
+              <option value="Ready for Pickup">Ready for Pickup</option>
+              <option value="Claimed">Claimed</option>
+              <option value="Cancelled">Cancelled</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Reservations Table -->
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50 text-slate-400 font-bold uppercase text-[10px] border-b border-slate-200">
+                <tr>
+                  <th class="py-3 px-4">Ref Code & Date</th>
+                  <th class="py-3 px-4">Student Details</th>
+                  <th class="py-3 px-4">Reserved Apparel</th>
+                  <th class="py-3 px-4">Total Amount</th>
+                  <th class="py-3 px-4">Scheduled Release</th>
+                  <th class="py-3 px-4">Status</th>
+                  <th class="py-3 px-4 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody id="admin-reservations-table-body" class="divide-y divide-slate-100">
+                <!-- Rendered dynamically by app.renderAdminReservations() -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- ADMIN INVENTORY SECTION -->
+      <!-- ========================================== -->
+      <div id="admin-inventory-section" class="mt-6 hidden">
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="p-4 bg-slate-50/80 border-b border-slate-200 flex items-center justify-between">
+            <div>
+              <h4 class="font-bold text-slate-800 text-sm">Apparel Stock Levels by Size</h4>
+              <p class="text-xs text-slate-500">Edit price or stock numbers directly in table cells. Updates sync automatically to student catalog.</p>
+            </div>
+            <button 
+              onclick="document.getElementById('add-product-modal').classList.remove('hidden')"
+              class="px-3.5 py-1.5 bg-blue-700 hover:bg-blue-800 text-white rounded-xl text-xs font-bold transition flex items-center gap-1">
+              + New Apparel Item
+            </button>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50 text-slate-400 font-bold uppercase text-[10px] border-b border-slate-200">
+                <tr>
+                  <th class="py-3 px-4">Item & Category</th>
+                  <th class="py-3 px-4">Price (₱)</th>
+                  <th class="py-3 px-4">Stock Breakdown Per Size (Live Inputs)</th>
+                  <th class="py-3 px-4">Overall Status</th>
+                  <th class="py-3 px-4 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody id="admin-inventory-table-body" class="divide-y divide-slate-100">
+                <!-- Rendered dynamically by app.renderAdminInventory() -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: PRODUCT QUICK VIEW & SIZE SELECTOR -->
+  <!-- ======================================================== -->
+  <div id="product-modal" class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-2xl w-full shadow-2xl border border-slate-200 overflow-hidden relative" id="product-modal-content">
+      <!-- Populated dynamically by app.openProductQuickView() -->
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: INTERACTIVE SIZE GUIDE -->
+  <!-- ======================================================== -->
+  <div id="size-guide-modal" class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-2xl w-full shadow-2xl border border-slate-200 overflow-hidden">
+      <!-- Header -->
+      <div class="p-6 bg-gradient-to-r from-slate-950 to-blue-900 text-white flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-blue-700 flex items-center justify-center text-amber-300 font-bold text-sm">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+          </div>
+          <div>
+            <h3 class="font-bold text-base">University Apparel Size Guide</h3>
+            <p class="text-xs text-blue-200">Standard Asian sizing calibrated for college campus uniforms</p>
+          </div>
+        </div>
+        <button onclick="app.closeModal('size-guide-modal')" class="text-slate-300 hover:text-white transition">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <!-- Controls: Category Tabs & Unit Switcher -->
+      <div class="p-4 bg-slate-50 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3">
+        <!-- Tabs -->
+        <div class="flex items-center gap-4">
+          <button id="btn-guide-tops" onclick="app.setSizeGuideTab('tops')" class="pb-2 border-b-2 border-blue-700 text-slate-900 font-bold text-sm">
+            Tops (Polo / Blouse / PE / Jackets)
+          </button>
+          <button id="btn-guide-bottoms" onclick="app.setSizeGuideTab('bottoms')" class="pb-2 border-b-2 border-transparent text-slate-500 font-medium text-sm hover:text-slate-800">
+            Bottoms (Slacks / Skirt / Joggers)
+          </button>
+        </div>
+
+        <!-- Unit Toggle -->
+        <div class="flex items-center gap-1 bg-white p-1 rounded-xl border border-slate-200">
+          <button id="btn-unit-in" onclick="app.toggleSizeGuideUnit('in')" class="px-3 py-1 text-xs font-bold rounded-lg bg-blue-700 text-white">
+            Inches (in)
+          </button>
+          <button id="btn-unit-cm" onclick="app.toggleSizeGuideUnit('cm')" class="px-3 py-1 text-xs font-bold rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200">
+            Centimeters (cm)
+          </button>
+        </div>
+      </div>
+
+      <!-- Measurement Table Container -->
+      <div class="p-6 overflow-x-auto" id="size-guide-table-container">
+        <!-- Rendered dynamically by app.renderSizeGuideTables() -->
+      </div>
+
+      <!-- Measurement Tips Footer -->
+      <div class="p-4 bg-amber-50 border-t border-amber-200 text-xs text-amber-900 flex items-start gap-2.5">
+        <svg class="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <p class="leading-relaxed">
+          <strong>Fitting Advice:</strong> Measure with relaxed breathing across the fullest part of your chest or natural waistline using a flexible tailor's tape. If you are between two sizes, choose the larger size for schoolroom movement.
+        </p>
+      </div>
+
+      <div class="p-4 bg-slate-50 border-t border-slate-200 flex justify-end">
+        <button onclick="app.closeModal('size-guide-modal')" class="px-4 py-2 bg-slate-900 text-white font-bold text-xs rounded-xl hover:bg-slate-800 transition">
+          Close Guide
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- SIDE DRAWER: RESERVATION CART -->
+  <!-- ======================================================== -->
+  <div id="cart-drawer" class="fixed inset-0 z-50 overflow-hidden hidden">
+    <!-- Backdrop -->
+    <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-xs drawer-backdrop" onclick="app.closeDrawer('cart-drawer')"></div>
+
+    <div class="fixed inset-y-0 right-0 max-w-full flex pl-10">
+      <div class="w-screen max-w-md bg-white shadow-2xl flex flex-col drawer-content border-l border-slate-200">
+        
+        <!-- Drawer Header -->
+        <div class="p-4 bg-slate-900 text-white flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+            <h3 class="font-bold text-base">Your Reservation Cart</h3>
+          </div>
+          <button onclick="app.closeDrawer('cart-drawer')" class="text-slate-400 hover:text-white transition">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+          </button>
+        </div>
+
+        <!-- Drawer Content Area -->
+        <div class="flex-1 overflow-y-auto p-4 space-y-3" id="cart-items-container">
+          <!-- Rendered dynamically by app.renderCartDrawer() -->
+        </div>
+
+        <!-- Drawer Footer -->
+        <div id="cart-drawer-footer" class="p-4 bg-slate-50 border-t border-slate-200 space-y-3">
+          <div class="flex items-center justify-between text-xs text-slate-500">
+            <span>Issuance Processing Fee:</span>
+            <span class="text-emerald-700 font-bold">FREE (Student Privilege)</span>
+          </div>
+          <div class="flex items-center justify-between text-base font-black text-slate-900">
+            <span>Total Payable:</span>
+            <span class="text-xl font-display text-blue-900" id="cart-drawer-total">₱0.00</span>
+          </div>
+          <p class="text-[11px] text-slate-500 leading-snug">
+            *No payment required now. Pay directly at the campus cashier counter during pickup verification.
+          </p>
+          <div class="flex gap-2 pt-1">
+            <button 
+              type="button" 
+              onclick="app.clearCart()" 
+              class="w-1/3 py-2.5 bg-slate-100 hover:bg-rose-50 hover:text-rose-700 text-slate-600 font-semibold text-xs rounded-xl border border-slate-200 transition">
+              Clear Cart
+            </button>
+            <button 
+              type="button" 
+              onclick="app.openCheckoutModal()" 
+              class="w-2/3 py-2.5 bg-blue-700 hover:bg-blue-800 active:scale-95 text-white font-bold text-xs rounded-xl shadow-md transition flex items-center justify-center gap-1.5">
+              <span>Checkout Reservation</span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: STUDENT CHECKOUT FORM -->
+  <!-- ======================================================== -->
+  <div id="checkout-modal" class="fixed inset-0 z-50 overflow-y-auto bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-xl w-full shadow-2xl border border-slate-200 overflow-hidden">
+      
+      <!-- Checkout Header -->
+      <div class="p-6 bg-gradient-to-r from-slate-950 to-blue-950 text-white flex items-center justify-between">
+        <div>
+          <span class="text-[11px] font-bold text-amber-400 uppercase tracking-wider">Step 2 of 2: Reservation Verification</span>
+          <h3 class="text-xl font-black font-display">Student Pickup Credentials</h3>
+        </div>
+        <button onclick="app.closeModal('checkout-modal')" class="text-slate-400 hover:text-white transition">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <!-- Checkout Form -->
+      <form id="checkout-form" class="p-6 space-y-4">
+        
+        <!-- Summary Mini Card -->
+        <div class="p-3 bg-blue-50/70 rounded-2xl border border-blue-200" id="checkout-items-summary">
+          <!-- Item list preview -->
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <!-- Full Name -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              Full Name (Student) <span class="text-red-500">*</span>
+            </label>
+            <input 
+              type="text" 
+              id="checkout-name" 
+              required 
+              placeholder="e.g., Samantha Nicole Reyes" 
+              class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600">
+          </div>
+
+          <!-- Student ID -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              Student / ID Number <span class="text-red-500">*</span>
+            </label>
+            <input 
+              type="text" 
+              id="checkout-id" 
+              required 
+              placeholder="e.g., 2024-10822-KA" 
+              class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 font-mono focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <!-- College Department -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              Academic Department <span class="text-red-500">*</span>
+            </label>
+            <select 
+              id="checkout-dept" 
+              required 
+              class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600">
+              <!-- Populated dynamically -->
+            </select>
+          </div>
+
+          <!-- Year Level -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              Year Level <span class="text-red-500">*</span>
+            </label>
+            <select 
+              id="checkout-year" 
+              required 
+              class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600">
+              <option value="1st Year">1st Year (Freshman)</option>
+              <option value="2nd Year">2nd Year (Sophomore)</option>
+              <option value="3rd Year">3rd Year (Junior)</option>
+              <option value="4th Year">4th Year (Senior)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Contact Number -->
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+            Mobile Number (for SMS claim alerts) <span class="text-red-500">*</span>
+          </label>
+          <input 
+            type="tel" 
+            id="checkout-contact" 
+            required 
+            pattern="[0-9]{11}" 
+            placeholder="09171234567 (11 digits)" 
+            class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 font-mono focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600">
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <!-- Preferred Pickup Date -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              Target Pickup Date <span class="text-red-500">*</span>
+            </label>
+            <input 
+              type="date" 
+              id="checkout-date" 
+              required 
+              class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600">
+          </div>
+
+          <!-- Preferred Time Slot -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              Pickup Batch Window <span class="text-red-500">*</span>
+            </label>
+            <select 
+              id="checkout-timeslot" 
+              required 
+              class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600">
+              <!-- Populated dynamically -->
+            </select>
+          </div>
+        </div>
+
+        <!-- Remarks -->
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+            Notes / Special Requests (Optional)
+          </label>
+          <input 
+            type="text" 
+            id="checkout-notes" 
+            placeholder="e.g., Authorized representative will claim on my behalf" 
+            class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600">
+        </div>
+
+        <!-- Submit Button -->
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
+          <button 
+            type="button" 
+            onclick="app.closeModal('checkout-modal')" 
+            class="px-4 py-2.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition">
+            Back to Cart
+          </button>
+          <button 
+            type="submit" 
+            class="px-6 py-2.5 bg-blue-700 hover:bg-blue-800 active:scale-95 text-white font-bold text-xs rounded-xl shadow-md transition flex items-center gap-2">
+            <svg class="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            Confirm & Generate Official QR Slip
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: RESERVATION RECEIPT & PRINTABLE SLIP -->
+  <!-- ======================================================== -->
+  <div id="receipt-modal" class="fixed inset-0 z-50 overflow-y-auto bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div id="printable-receipt-modal" class="w-full max-w-xl">
+      <!-- Populated dynamically by app.showReceiptModal() -->
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: ADMIN ADD NEW APPAREL ITEM -->
+  <!-- ======================================================== -->
+  <div id="add-product-modal" class="fixed inset-0 z-50 overflow-y-auto bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-xl w-full shadow-2xl border border-slate-200 overflow-hidden">
+      <div class="p-6 bg-slate-900 text-white flex items-center justify-between">
+        <div>
+          <h3 class="text-base font-bold">Add New Apparel Item to Catalog</h3>
+          <p class="text-xs text-slate-400">Configure item details, photography, and initial size stocks</p>
+        </div>
+        <button onclick="app.closeModal('add-product-modal')" class="text-slate-400 hover:text-white transition">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <form id="add-product-form" class="p-6 space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Apparel Item Name</label>
+          <input type="text" id="new-prod-name" required placeholder="e.g., University Fleece Windbreaker Jacket" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800">
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Category</label>
+            <select id="new-prod-category" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800">
+              <option value="general">General Uniform</option>
+              <option value="pe">PE Athletics</option>
+              <option value="department">Department Attire</option>
+              <option value="accessory">Accessory</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Gender Edition</label>
+            <select id="new-prod-gender" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800">
+              <option value="Unisex">Unisex</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Price (₱)</label>
+            <input type="number" id="new-prod-price" required min="10" step="5" value="450" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 font-bold">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Fabric Composition</label>
+            <input type="text" id="new-prod-material" placeholder="e.g., Heavy French Terry Cotton" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Photo Image Path</label>
+          <select id="new-prod-img" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800">
+            <option value="images/varsity_jacket.jpg">images/varsity_jacket.jpg (Varsity Jacket)</option>
+            <option value="images/male_polo.jpg">images/male_polo.jpg (Male Polo Barong)</option>
+            <option value="images/female_blouse.jpg">images/female_blouse.jpg (Female Blouse)</option>
+            <option value="images/female_skirt.jpg">images/female_skirt.jpg (Pleated Skirt)</option>
+            <option value="images/male_slacks.jpg">images/male_slacks.jpg (Tailored Slacks)</option>
+            <option value="images/pe_shirt.jpg">images/pe_shirt.jpg (PE Athletics Shirt)</option>
+            <option value="images/pe_pants.jpg">images/pe_pants.jpg (PE Jogger Pants)</option>
+            <option value="images/dept_tech.jpg">images/dept_tech.jpg (Tech Department Polo)</option>
+            <option value="images/dept_ba.jpg">images/dept_ba.jpg (Business Department Polo)</option>
+            <option value="images/lanyard.jpg">images/lanyard.jpg (University ID Lanyard)</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Item Description</label>
+          <textarea id="new-prod-desc" rows="2" placeholder="Apparel description, styling, and care instructions..." class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800"></textarea>
+        </div>
+
+        <!-- Initial Size Breakdown -->
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-2">Initial Stock Breakdown by Size</label>
+          <div class="grid grid-cols-7 gap-2">
+            <div>
+              <span class="block text-[10px] text-center font-bold text-slate-500">XS</span>
+              <input type="number" id="new-stock-xs" value="10" min="0" class="w-full text-center px-1 py-1.5 bg-slate-50 border rounded-lg text-xs font-bold">
+            </div>
+            <div>
+              <span class="block text-[10px] text-center font-bold text-slate-500">S</span>
+              <input type="number" id="new-stock-s" value="20" min="0" class="w-full text-center px-1 py-1.5 bg-slate-50 border rounded-lg text-xs font-bold">
+            </div>
+            <div>
+              <span class="block text-[10px] text-center font-bold text-slate-500">M</span>
+              <input type="number" id="new-stock-m" value="30" min="0" class="w-full text-center px-1 py-1.5 bg-slate-50 border rounded-lg text-xs font-bold">
+            </div>
+            <div>
+              <span class="block text-[10px] text-center font-bold text-slate-500">L</span>
+              <input type="number" id="new-stock-l" value="20" min="0" class="w-full text-center px-1 py-1.5 bg-slate-50 border rounded-lg text-xs font-bold">
+            </div>
+            <div>
+              <span class="block text-[10px] text-center font-bold text-slate-500">XL</span>
+              <input type="number" id="new-stock-xl" value="10" min="0" class="w-full text-center px-1 py-1.5 bg-slate-50 border rounded-lg text-xs font-bold">
+            </div>
+            <div>
+              <span class="block text-[10px] text-center font-bold text-slate-500">2XL</span>
+              <input type="number" id="new-stock-2xl" value="5" min="0" class="w-full text-center px-1 py-1.5 bg-slate-50 border rounded-lg text-xs font-bold">
+            </div>
+            <div>
+              <span class="block text-[10px] text-center font-bold text-slate-500">3XL</span>
+              <input type="number" id="new-stock-3xl" value="0" min="0" class="w-full text-center px-1 py-1.5 bg-slate-50 border rounded-lg text-xs font-bold">
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex justify-end gap-2">
+          <button type="button" onclick="app.closeModal('add-product-modal')" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl">Cancel</button>
+          <button type="submit" class="px-5 py-2 bg-blue-700 hover:bg-blue-800 text-white font-bold text-xs rounded-xl shadow">Save & Add to Catalog</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- FLOATING TOAST CONTAINER -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- FOOTER -->
+  <footer class="bg-slate-950 border-t border-slate-900 text-slate-400 py-6 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
+      <div class="flex items-center gap-2.5 text-slate-300">
+        <img src="images/kahit-ano-logo.png" alt="Kahit Ano Logo" class="w-6 h-6 rounded-lg object-cover bg-white">
+        <span class="font-bold text-white font-display">Kahit Ano</span>
+        <span>•</span>
+        <span>Visual Catalog & Reservation Prototype</span>
+      </div>
+      <p class="text-slate-500 text-center sm:text-right">
+        We Cover... Everything (Kahit Ano!)
+      </p>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
